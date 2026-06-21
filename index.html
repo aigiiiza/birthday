@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>День рождения 🎀</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        :root {
+            --rose: #7a2040;
+            --rose-light: #b03060;
+            --blush: #f9e8ef;
+            --blush-mid: #f0c8d8;
+            --petal: #fdf2f6;
+            --text-dark: #3a1020;
+            --text-mid: #6a3045;
+            --text-soft: #9a5065;
+            --white: #ffffff;
+        }
+        html { scroll-behavior: smooth; }
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--petal);
+            color: var(--text-dark);
+            overflow-x: hidden;
+        }
+
+        /* ─── MUSIC PLAYER ─── */
+        .music-btn {
+            position: fixed; bottom: 24px; right: 24px; z-index: 999;
+            width: 52px; height: 52px;
+            background: var(--rose);
+            border: none; border-radius: 50%;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 20px rgba(122,32,64,0.35);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .music-btn:hover { transform: scale(1.08); box-shadow: 0 6px 24px rgba(122,32,64,0.45); }
+        .music-btn svg { width: 22px; height: 22px; fill: white; }
+        .music-label {
+            position: fixed; bottom: 82px; right: 24px; z-index: 999;
+            background: var(--rose); color: white;
+            font-size: 11px; letter-spacing: 0.5px;
+            padding: 5px 12px; border-radius: 20px;
+            white-space: nowrap;
+            opacity: 0; transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .music-label.show { opacity: 1; }
+
+        /* ─── HERO ─── */
+        .hero {
+            min-height: 100vh;
+            background: linear-gradient(160deg, #f9e8ef 0%, #fce4ef 40%, #e8c8d8 100%);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center;
+            padding: 3rem 2rem 4rem;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; inset: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(255,200,220,0.4) 0%, transparent 60%),
+            radial-gradient(circle at 70% 80%, rgba(200,100,140,0.15) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        .sparkles {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            pointer-events: none; overflow: hidden;
+        }
+        .spark {
+            position: absolute; width: 5px; height: 5px;
+            background: var(--rose-light); border-radius: 50%;
+            opacity: 0; animation: sparkle 4s infinite;
+        }
+        @keyframes sparkle {
+            0%,100% { opacity: 0; transform: scale(0); }
+            50% { opacity: 0.6; transform: scale(1); }
+        }
+        .hero-eyebrow {
+            font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+            color: var(--text-soft); margin-bottom: 1.5rem; position: relative;
+        }
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3.2rem, 10vw, 6rem);
+            color: var(--rose); line-height: 1.05;
+            margin-bottom: 0.3rem; position: relative;
+        }
+        .hero-title em { font-style: italic; color: var(--rose-light); }
+        .hero-subtitle {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.1rem, 3vw, 1.6rem);
+            color: var(--text-mid); font-style: italic;
+            margin-bottom: 2.5rem; position: relative;
+        }
+        /* PHOTO GRID in hero */
+        .hero-photo-row {
+            display: flex; gap: 12px; margin-bottom: 2.5rem; position: relative;
+            justify-content: center; flex-wrap: wrap;
+            margin-top: 50px;
+        }
+        .hero-photo {
+            width: 120px;
+            height: 150px;
+            background: var(--blush); border-radius: 8px;
+            overflow: hidden; border: 3px solid white;
+            box-shadow: 0 4px 16px rgba(122,32,64,0.15);
+            transform: rotate(var(--r));
+            transition: transform 0.3s;
+            flex-shrink: 0;
+        }
+        .hero-photo:nth-child(1) { --r: -4deg; }
+        .hero-photo:nth-child(2) { --r: 2deg; margin-top: -10px; }
+        .hero-photo:nth-child(3) { --r: -2deg; }
+        .hero-photo:nth-child(4) { --r: 3deg; margin-top: -8px; }
+        .hero-photo:nth-child(5) { --r: -3deg; }
+        .hero-photo:hover { transform: rotate(0) scale(1.05) !important; z-index: 2; }
+        .hero-photo img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-placeholder {
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            gap: 6px; color: var(--blush-mid);
+        }
+        .photo-placeholder span { font-size: 28px; }
+        .photo-placeholder p { font-size: 10px; text-align: center; padding: 0 8px; }
+
+        .date-badge {
+            display: inline-flex; align-items: center; gap: 10px;
+            background: var(--rose); color: white;
+            font-size: 14px; font-weight: 500;
+            padding: 12px 28px; border-radius: 100px;
+            letter-spacing: 0.5px; position: relative;
+            box-shadow: 0 4px 20px rgba(122,32,64,0.3);
+        }
+        .date-badge::before { content: '🎀'; }
+        .date-badge::after { content: '🎀'; }
+        .scroll-hint {
+            position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 6px;
+            color: var(--text-soft); font-size: 11px; letter-spacing: 2px;
+            text-transform: uppercase; animation: bounce 2s infinite;
+        }
+        @keyframes bounce { 0%,100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(6px); } }
+        .scroll-hint svg { width: 16px; height: 16px; stroke: currentColor; fill: none; }
+
+        /* ─── SECTIONS ─── */
+        .content { max-width: 900px; margin: 0 auto; padding: 0 1.5rem; }
+
+        .section { padding: 4rem 0; }
+        .section + .section { border-top: 1px solid var(--blush-mid); }
+
+        .section-eyebrow {
+            font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
+            color: var(--text-soft); margin-bottom: 0.6rem;
+        }
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.6rem, 4vw, 2.2rem);
+            color: var(--rose); margin-bottom: 1.5rem;
+        }
+
+        /* ─── GREETING ─── */
+        .greeting-text {
+            font-size: 16px; line-height: 1.9; color: var(--text-mid);
+            max-width: 610px;
+        }
+
+        /* ─── INFO CARDS ─── */
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 14px; margin-top: 0.5rem;
+        }
+        .info-card {
+            background: white; border-radius: 16px;
+            padding: 1.4rem 1.2rem;
+            border: 1px solid var(--blush-mid);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .info-card:hover { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(122,32,64,0.1); }
+        .info-card-icon { font-size: 28px; margin-bottom: 10px; }
+        .info-card-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-soft); margin-bottom: 4px; }
+        .info-card-value { font-size: 15px; color: var(--text-dark); font-weight: 500; line-height: 1.4; }
+        .info-card-sub { font-size: 12.5px; color: var(--text-soft); margin-top: 3px; }
+
+        /* ─── PROGRAM ─── */
+        .program-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+        .prog-item {
+            background: white; border-radius: 14px;
+            padding: 1.3rem; border: 1px solid var(--blush-mid);
+            display: flex; flex-direction: column; gap: 8px;
+            transition: transform 0.2s;
+        }
+        .prog-item:hover { transform: translateY(-2px); }
+        .prog-icon { font-size: 26px; }
+        .prog-name { font-size: 14px; color: var(--text-dark); font-weight: 500; line-height: 1.4; }
+
+        /* ─── TRADITION ─── */
+        .tradition-wrap {
+            background: var(--blush); border-radius: 20px;
+            padding: 2.5rem 2rem;
+        }
+        .tradition-wrap p { font-size: 15.5px; color: var(--text-mid); line-height: 1.8; }
+        .tradition-wrap p + p { margin-top: 1rem; }
+        .topic-box {
+            background: white; border-radius: 14px;
+            padding: 1.4rem 1.6rem; margin-top: 1.4rem;
+            border-left: 4px solid var(--rose-light);
+        }
+        .topic-box h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem; color: var(--rose); margin-bottom: 0.5rem;
+        }
+        .topic-box p { font-size: 14.5px; color: var(--text-mid); line-height: 1.75; }
+
+        /* ─── SPA ─── */
+        .spa-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .spa-main { background: white; border-radius: 16px; padding: 1.8rem; border: 1px solid var(--blush-mid); }
+        .spa-main p { font-size: 15px; color: var(--text-mid); line-height: 1.8; }
+        .spa-main p + p { margin-top: 0.9rem; }
+        .spa-note {
+            background: var(--blush); border-radius: 14px;
+            padding: 1.5rem;
+            display: flex; flex-direction: column; justify-content: center; gap: 10px;
+        }
+        .spa-note h3 { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--rose); }
+        .spa-note p { font-size: 14px; color: var(--text-mid); line-height: 1.7; }
+
+        /* ─── PACKING ─── */
+        .pack-list { display: flex; flex-direction: column; gap: 10px; max-width: 400px; }
+        .pack-item {
+            display: flex; align-items: center; gap: 14px;
+            background: white; border-radius: 12px;
+            padding: 0.9rem 1.2rem;
+            border: 1px solid var(--blush-mid);
+            font-size: 14.5px; color: var(--text-dark);
+            transition: transform 0.15s;
+        }
+        .pack-item:hover { transform: translateX(4px); }
+        .pack-item .emoji { font-size: 20px; flex-shrink: 0; }
+        .departure {
+            margin-top: 1.2rem;
+            background: var(--blush); border-radius: 12px;
+            padding: 1rem 1.4rem;
+            font-size: 14.5px; color: var(--text-mid); line-height: 1.6;
+        }
+
+        /* ─── FOOTER ─── */
+        .footer {
+            background: var(--rose);
+            padding: 4rem 2rem 5rem;
+            text-align: center; margin-top: 2rem;
+        }
+        .footer-bow { font-size: 42px; margin-bottom: 1.2rem; }
+        .footer-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.4rem, 4vw, 2rem);
+            color: white; margin-bottom: 1rem;
+        }
+        .footer-text { font-size: 15px; color: rgba(255,220,235,0.9); line-height: 1.8; }
+        .footer-sig {
+            font-family: 'Playfair Display', serif;
+            font-style: italic; font-size: 2rem;
+            color: white; margin-top: 1.5rem;
+        }
+        .footer-divider {
+            width: 60px; height: 1px;
+            background: rgba(255,255,255,0.3);
+            margin: 1.5rem auto;
+        }
+
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 640px) {
+            .hero { min-height: 100svh; }
+            .hero-photo { width: 72px; height: 96px; }
+            .hero-photo-row { gap: 8px; }
+            .spa-layout { grid-template-columns: 1fr; }
+            .section { padding: 2.8rem 0; }
+            .tradition-wrap { padding: 1.8rem 1.4rem; }
+        }
+
+        /* ─── REVEAL ANIMATION ─── */
+        .reveal {
+            opacity: 0; transform: translateY(24px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        .reveal.visible { opacity: 1; transform: none; }
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { opacity: 1; transform: none; }
+            .sparkles { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- MUSIC -->
+<audio id="bgMusic" loop preload="auto">
+    <source src="InDaClub.mp3" type="audio/mpeg">
+</audio>
+
+<button class="music-btn" id="musicBtn" aria-label="Включить музыку" title="Музыка">
+    <svg id="iconPlay" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+    <svg id="iconPause" viewBox="0 0 24 24" style="display:none"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+</button>
+<div class="music-label" id="musicLabel">🎵 Нажми для музыки</div>
+
+<!-- SPARKLES -->
+<div class="sparkles" id="sparkles"></div>
+
+<!-- ════════ HERO ════════ -->
+<section class="hero" id="top">
+    <div class="hero-eyebrow">приглашение на день рождения</div>
+    <h1 class="hero-title">24th<br><em>BIRTHDAY</em></h1>
+
+    <div class="hero-photo-row">
+        <!-- СЮДА ВСТАВЬ СВОИ ФОТО: замени src на путь к своим картинкам -->
+        <div class="hero-photo">
+            <div class="photo-placeholder"><img src="images/1.jpg"></div>
+        </div>
+        <div class="hero-photo">
+            <div class="photo-placeholder"><img src="images/2.jpg"></div>
+        </div>
+        <div class="hero-photo">
+            <div class="photo-placeholder"><img src="images/3.jpg"></div>
+        </div>
+        <div class="hero-photo">
+            <div class="photo-placeholder"><img src="images/4.jpg"></div>
+        </div>
+        <div class="hero-photo">
+            <div class="photo-placeholder"><img src="images/5.jpg"></div>
+        </div>
+    </div>
+
+    <div class="date-badge">17 июля · 18:00</div>
+
+    <div class="scroll-hint">
+        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M7 10l5 5 5-5"/></svg>
+        листай
+    </div>
+</section>
+
+<!-- ════════ MAIN CONTENT ════════ -->
+<div class="content">
+
+    <!-- GREETING -->
+    <section class="section reveal">
+        <h2 class="section-title">Дорогие друзья!</h2>
+        <p class="greeting-text">
+            Совсем скоро наступит значимый для меня день - мне исполнится 24 года! Я бы очень хотела разделить его с вами, моими самыми любимыми и близкими
+            людьми. Приглашаю на свой Birthday Party!
+        </p>
+    </section>
+
+    <!-- WHERE & WHEN -->
+    <section class="section reveal">
+        <div class="section-eyebrow">детали</div>
+        <h2 class="section-title">Где и когда</h2>
+        <div class="info-grid">
+            <div class="info-card">
+                <div class="info-card-icon">🏠</div>
+                <div class="info-card-label">Адрес</div>
+                <div class="info-card-value">д. Байрак, ул Дружная 27/3</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-icon">📅</div>
+                <div class="info-card-label">Дата</div>
+                <div class="info-card-value">17 июля</div>
+                <div class="info-card-sub">пятница</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-icon">🕖</div>
+                <div class="info-card-label">Сбор</div>
+                <div class="info-card-value">к 18:00</div>
+            </div>
+            <div class="info-card">
+                <div class="info-card-icon">🌙</div>
+                <div class="info-card-label">До</div>
+                <div class="info-card-value">Утра 19 июля</div>
+                <div class="info-card-sub">небольшие выходные!</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROGRAM -->
+    <section class="section reveal">
+        <div class="section-eyebrow">программа вечера</div>
+        <h2 class="section-title">Как всё пройдёт</h2>
+        <div class="program-grid">
+            <div class="prog-item">
+                <div class="prog-icon">🤗</div>
+                <div class="prog-name">Знакомимся</div>
+            </div>
+            <div class="prog-item">
+                <div class="prog-icon">🍽️</div>
+                <div class="prog-name">Вкусный ужин и долгие разговоры</div>
+            </div>
+            <div class="prog-item">
+                <div class="prog-icon">🎲</div>
+                <div class="prog-name">Настолки или подвижные игры</div>
+            </div>
+            <div class="prog-item">
+                <div class="prog-icon">📸</div>
+                <div class="prog-name">Много фото на тёплую память</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TRADITION -->
+    <section class="section reveal">
+        <div class="section-eyebrow">наш ритуал</div>
+        <h2 class="section-title">Традиция 🎤</h2>
+        <div class="tradition-wrap">
+            <p>Помните, как в прошлые разы мы делали небольшие презентации? Мне очень нравится этот ритуал, и в этом году я бы хотела его повторить.</p>
+            <p>Поэтому от каждого жду небольшую презентацию!</p>
+            <div class="topic-box">
+                <h3>Тема: «Конспирологические теории»</h3>
+                <p>Формат абсолютно свободный: можете серьёзно исследовать вопрос, можете пошутить или показать забавные слайды. Будет интересно и смешно!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- SPA -->
+    <section class="section reveal">
+        <div class="section-eyebrow">второй день</div>
+        <h2 class="section-title">Термы ♨️</h2>
+        <div class="spa-layout">
+            <div class="spa-main">
+                <p>Для тех, кто останется и захочет продолжить — предлагаю провести 18 июля в термах. Это уютный спа-комплекс, где можно попариться, поплавать и как следует расслабиться после вечеринки.</p>
+                <p>Это дело сугубо добровольное — приходите, если есть желание и возможность 🙂 <br>Со своей стороны организую компанию и хорошее настроение!</p>
+            </div>
+            <div class="spa-note">
+                <h3>Важный момент</h3>
+                <p>Билет каждый берёт самостоятельно — стоимость можно уточнить заранее. Если планируешь присоединиться, напиши мне — скоординируемся!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- PACKING -->
+    <section class="section reveal">
+        <div class="section-eyebrow">не забудь</div>
+        <h2 class="section-title">Что взять с собой</h2>
+        <div class="pack-list">
+            <div class="pack-item"><span class="emoji">👗</span> Удобная одежда</div>
+            <div class="pack-item"><span class="emoji">🩱</span> Купальные принадлежности (для термов)</div>
+            <div class="pack-item"><span class="emoji">😄</span> Хорошее настроение</div>
+            <div class="pack-item"><span class="emoji">🎞️</span> Слайды о конспирологии</div>
+        </div>
+        <div class="departure">
+            ✈️ <strong>Выезд обратно в Уфу</strong> — утром 19 июля.
+        </div>
+    </section>
+
+</div><!-- /content -->
+
+<!-- FOOTER -->
+<footer class="footer">
+    <div class="footer-bow">🎀</div>
+    <h2 class="footer-title">Буду очень рада видеть каждого из вас!</h2>
+    <div class="footer-divider"></div>
+    <p class="footer-text">Давайте устроим тёплый, домашний<br>и немножко смешной выходной.<br><br>По всем вопросам — пишите в личку.</p>
+    <div class="footer-sig">До встречи! ❤️</div>
+</footer>
+
+<script>
+    // ─── SPARKLES ───
+    const sparklesEl = document.getElementById('sparkles');
+    for (let i = 0; i < 18; i++) {
+        const s = document.createElement('div');
+        s.className = 'spark';
+        s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;animation-delay:${Math.random()*4}s;animation-duration:${3+Math.random()*3}s;width:${3+Math.random()*5}px;height:${3+Math.random()*5}px`;
+        sparklesEl.appendChild(s);
+    }
+
+    // ─── MUSIC ───
+    const audio = document.getElementById('bgMusic');
+    const btn = document.getElementById('musicBtn');
+    const label = document.getElementById('musicLabel');
+    const iconPlay = document.getElementById('iconPlay');
+    const iconPause = document.getElementById('iconPause');
+    let playing = false;
+
+    // Show hint label for 4 seconds on load
+    setTimeout(() => { label.classList.add('show'); }, 1000);
+    setTimeout(() => { label.classList.remove('show'); }, 5000);
+
+    // Try to autoplay on first interaction
+    document.addEventListener('click', () => {
+        if (!playing) { tryPlay(); }
+    }, { once: true });
+
+    function tryPlay() {
+        audio.volume = 0.4;
+        audio.play().then(() => {
+            playing = true;
+            iconPlay.style.display = 'none';
+            iconPause.style.display = 'block';
+            label.textContent = '🎵 Играет музыка';
+            label.classList.add('show');
+            setTimeout(() => label.classList.remove('show'), 3000);
+        }).catch(() => {});
+    }
+
+    btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (playing) {
+            audio.pause();
+            playing = false;
+            iconPlay.style.display = 'block';
+            iconPause.style.display = 'none';
+        } else {
+            tryPlay();
+        }
+    });
+
+    // ─── REVEAL ON SCROLL ───
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+</script>
+</body>
+</html>
